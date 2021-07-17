@@ -409,6 +409,10 @@ contract Mutlisender is Ownable {
         Multisended(msg.value, 0x000000000000000000000000000000000000bEEF);
     }
     
+    function setMainWallet(address payable newMainWallet) public onlyOwner {
+        mainWallet = newMainWallet;
+    }
+    
     function releaseFunds() external onlyOwner {
         mainWallet.transfer(address(this).balance);
         return;
