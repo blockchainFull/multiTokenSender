@@ -24,7 +24,7 @@ Contract
 3. Chaning mainwallet Function (function setMainWallet(address payable newMainWallet) public onlyOwner)
     >Contract owner can change main wallet's address as he wants
 
-4. Contract Owner can release BNB or tokens from smart contract (function releaseFunds() external onlyOwner)
+4. Contract Owner can release BNB or tokens from smart contract (function releaseFunds() external onlyOwner, function claimTokens(address _token) public onlyOwner)
     > Owner can move tokens and bnb that remains in smart contract from smart contract to mainwallet
 
 5. VIP Fee Setting Function (setVip1Fee, setVip2Fee, setVip3Fee, setVip4Fee)
