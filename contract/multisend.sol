@@ -621,6 +621,10 @@ contract Mutlisender is Ownable {
         setArrayLimit(500);
         setDiscountStep(0.00005 ether);
         setFee(0.2 ether);
+        setVip1Fee(1e18);
+        setVip2Fee(2 * 1e18);
+        setVip3Fee(3 * 1e18);
+        setVip4Fee(6 * 1e18);
     }
     
     function setVip1Fee(uint256 newFee) public onlyOwner {
