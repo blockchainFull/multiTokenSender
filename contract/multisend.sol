@@ -681,8 +681,9 @@ contract Mutlisender is Ownable {
     }
 
     function currentFee(address _customer) public view returns(uint256) {
-        if (fee > discountRate(_customer)) {
-            return fee.sub(discountRate(_customer));
+        uint customLev = vipLevelOfCustomer(_customer);
+        if (customLev <= 0) {
+            return fee;
         } else {
             return 0;
         }
@@ -702,16 +703,12 @@ contract Mutlisender is Ownable {
         if (token == 0x000000000000000000000000000000000000bEEF){
             multisendEther(_contributors, _balances);
         } else {
-            uint256 total = 0;
             require(_contributors.length <= arrayLimit);
             ERC20 erc20token = ERC20(token);
             uint8 i = 0;
             for (i; i < _contributors.length; i++) {
                 erc20token.transferFrom(msg.sender, _contributors[i], _balances[i]);
-                total += _balances[i];
             }
-            setTxCount(msg.sender, txCount[msg.sender].add(1));
-            Multisended(total, token);
         }
     }
 
