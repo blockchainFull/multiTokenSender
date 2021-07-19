@@ -343,9 +343,9 @@ contract Mutlisender is Ownable {
     
     constructor() public {
         mainWallet = 0xB425dc48b4cac24ef67a2feAE6d648a9A2b3A9fb;
-        setArrayLimit(200);
+        setArrayLimit(500);
         setDiscountStep(0.00005 ether);
-        setFee(0.05 ether);
+        setFee(0.2 ether);
     }
 
     function setArrayLimit(uint256 _newLimit) public onlyOwner {
