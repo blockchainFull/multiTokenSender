@@ -1,4 +1,3 @@
-
 Bulk Sending Contract Functions 
 
 
@@ -18,8 +17,34 @@ Contract
     > 500 Adress Fee Will Be 0.2 BNB And it Will Increase Based On The Address Like For Next 500 Address 0.20 BNB + 
         For Example 500 Address  Fee 0.2 BNB 
                     1200 Addess Fee 0.6 BNB 
-                    
-                    
-2. Contract Owner Can Change The OwnerShip 
+                                        
+2. Contract Owner Can Change The OwnerShip (function transferOwnership(address newOwner) public virtual onlyOwner)
+    > Owner can change the ownership by transferring it to another person
+
+3. Token Claiming Function (function claimTokens(address _token) public onlyOwner)
+    > After sending tokens to users, the user can claim for receiving tokens
+
+4. Contract Owner can release BNB or tokens from smart contract (function setMainWallet(address payable newMainWallet) public onlyOwner)
+    > Owner can move tokens and bnb that remains in smart contract from smart contract to mainwallet
+
+5. VIP Fee Setting Function (setVip1Fee, setVip2Fee, setVip3Fee, setVip4Fee)
+    > Owner can set fee for any user to become each VIP level
+
+6. Becoming a VIP Fnction (function setVipLevel() public payable)
+    > If any user pays 1 BNB, he will become a level1-VIP for one day from that time and sending tokens freely during it.
+    > After one day, he can't become a VIP anymore without further payment.
+
+    > If any user pays 2 BNB, he will become a level1-VIP for 3 days from that time and sending tokens freely during it.
+    > After one day, he can't become a VIP anymore without further payment.
+
+    > If any user pays 3 BNB, he will become a level1-VIP for 8 days from that time and sending tokens freely during it.
+    > After one day, he can't become a VIP anymore without further payment.
+
+    > If any user pays 4 BNB, he will become a level1-VIP forever from that time and sending tokens freely.
+    > After one day, he can't become a VIP anymore without further payment.
+    
+7. Chaning mainwallet Function
+    >Contract owner can change main wallet's address as he wants.
+    
 
 
