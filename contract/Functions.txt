@@ -21,8 +21,8 @@ Contract
 2. Contract Owner Can Change The OwnerShip (function transferOwnership(address newOwner) public virtual onlyOwner)
     > Owner can change the ownership by transferring it to another person
 
-3. Token Claiming Function (function claimTokens(address _token) public onlyOwner)
-    > After sending tokens to users, the user can claim for receiving tokens
+3. Chaning mainwallet Function
+    >Contract owner can change main wallet's address as he wants
 
 4. Contract Owner can release BNB or tokens from smart contract (function setMainWallet(address payable newMainWallet) public onlyOwner)
     > Owner can move tokens and bnb that remains in smart contract from smart contract to mainwallet
@@ -42,9 +42,5 @@ Contract
 
     > If any user pays 4 BNB, he will become a level1-VIP forever from that time and sending tokens freely.
     > After one day, he can't become a VIP anymore without further payment.
-    
-7. Chaning mainwallet Function
-    >Contract owner can change main wallet's address as he wants.
-    
 
 
