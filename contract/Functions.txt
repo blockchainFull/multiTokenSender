@@ -1,1 +1,25 @@
 
+Bulk Sending Contract Functions 
+
+
+Flow >
+
+> User Select network And Conttect His Wallet 
+> User Will Select Token Which He Want to Distrubute 
+> User Upload list Of Address 
+> User Confirm The Fee And Estimated Transaction Fee And Send 
+
+
+
+Contract 
+1. Bulk Sending Function 
+    > User Can Upload List of 10000 Addresss At One time 
+    > 500 Address Will Send in Transactions 
+    > 500 Adress Fee Will Be 0.2 BNB And it Will Increase Based On The Address Like For Next 500 Address 0.20 BNB + 
+        For Example 500 Address  Fee 0.2 BNB 
+                    1200 Addess Fee 0.6 BNB 
+                    
+                    
+2. Contract Owner Can Change The OwnerShip 
+
+
