@@ -396,7 +396,12 @@ export default function App() {
     } else {
       setTokenAddr("0x0000")
       setTokenDecimal(18)
-      setTokenSymbol('BNB');
+      if (getChainName() === "Binance") {
+        setTokenSymbol('BNB');
+      } else {
+        setTokenSymbol('Ether');
+      }
+      
 
       if (getChainName() === "Binance") {
         await fetch('https://api.bscscan.com/api?module=account&action=balance&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
@@ -631,7 +636,7 @@ export default function App() {
                           </div>
                         </Form.Label>
                         <Form.Control as="select" value={tokenAddr} onChange={(e) => selectToken(e.target.value)}>
-                          <option value="0x0000">BNB</option>
+                          <option value="0x0000">{(chainName === "Binance") ? "BNB" : "Ether"}</option>
                           {tokenTransList.map((e: any, index: any) => {
                             return <option key={index} value={e.contractAddress} >{e.tokenName}</option>
                           })}
