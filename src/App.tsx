@@ -12,13 +12,13 @@ import XLSX from "xlsx";
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils'
 import { BigNumber } from 'bignumber.js';
-import { CONTRACT_ADDR, API_KEY, BEP20_ABI, MULTISENDER_ABI } from './config.js'
+import Config, { API_KEY, BEP20_ABI, MULTISENDER_ABI } from './config.js'
 import './App.css'
 
 declare let window: any;
 
 const WALLET_INIT = "CONNECT";
-const CHAIN_ID = '0x38';
+const CHAIN_NAMES = ['Ether mainnet', 'Binance'];
 let web3 = new Web3(window.ethereum)
 
 const useStyles = makeStyles((theme) => ({
@@ -57,6 +57,53 @@ export default function App() {
   const [alertMsg, setAlertMsg] = useState('');
   const [data, setdata] = useState([])
   const [editText, setEditText] = useState(0)
+  const [chainName, setChainName] = useState('');
+
+  const changeChain = async (e: any) => {
+    if (getChainId(e.target.value)) {
+      window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: getChainId(e.target.value) }],
+      }).then(() => {
+        
+      }).catch(() => {
+        
+      })
+    }
+  }
+
+  const getChainId = (name: any) => {
+    if (name === "Ether mainnet") {
+      return '0x1';
+    } else if (name === "Binance") {
+      return '0x38';
+    }
+    return ""
+  }
+
+  const getChainName = () => {
+    if (!window.ethereum) {
+      return ""
+    } else if (window.ethereum.chainId === "0x1") {
+      return "Ether mainnet"
+    } else if (window.ethereum.chainId === "0x38") {
+      return  "Binance"
+    } else {
+      return ""
+    }
+  }
+
+  const getContractAddr = () => {
+    if (!window.ethereum) {
+      return ""
+    } else if (window.ethereum.chainId === "0x1") {
+      return Config.ETH_CONTRACT_ADDR
+    } else if (window.ethereum.chainId === "0x38") {
+      return  Config.BSC_CONTRACT_ADDR
+    } else {
+      return ""
+    }
+  }
 
   const steps = getSteps();
 
@@ -116,21 +163,9 @@ export default function App() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const getChainId = async () => {
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    return chainId;
-  }
-
   const connectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
       alert('MetaMask is not installed!')
-    }
-
-    /*** check if it is on BSC network***/
-    const chainId = await getChainId()
-    if (chainId !== CHAIN_ID) {
-      alert('wrong network!')
-      return
     }
 
     /*** metamask connecting ***/
@@ -138,6 +173,7 @@ export default function App() {
       method: 'eth_requestAccounts'
     }).then((accounts: any) => {
       setWalletAddress(accounts[0])
+      setChainName(getChainName())
     }).catch(() => {
 
     })
@@ -220,23 +256,6 @@ export default function App() {
         alert('MetaMask is not installed!')
       }
 
-      /***** when chain Network is changed *****/
-      window.ethereum.on('chainChanged', (chainId: any) => {
-        if (chainId !== CHAIN_ID) {
-          alert('wrong network!')
-        } else {
-        }
-      });
-
-      /***** when account is changed *****/
-      window.ethereum.on('accountsChanged', (accounts: any) => {
-        if (accounts[0]) {
-          setWalletAddress(accounts[0]);
-        } else {
-          setWalletAddress(WALLET_INIT);
-        }
-      })
-
       window.ethereum.request({
         method: 'eth_accounts'
       }).then((accounts: any) => {
@@ -249,45 +268,106 @@ export default function App() {
       })
     } else if (walletAddress !== "") {
       setTokenAddr("0x0000");
-      fetch('https://api.bscscan.com/api?module=account&action=tokentx&address=' + walletAddress + '&startblock=0&endblock=10000000&sort=asc&apikey=' + API_KEY, {
-        method: 'GET',
-      }).then(res => res.json()
-      ).then(res => {
-        if (res.message === "OK") {
-          let transArr: any[] = [];
-          for (let index = 0; index < res.result.length; index++) {
-            const element = res.result[index];
-            let already = false;
-            for (let j = 0; j <= index - 1; j++) {
-              if (element.contractAddress === res.result[j].contractAddress) {
-                already = true;
-                break;
+      setChainName(getChainName());
+      if (getChainName() === "Binance") {
+        fetch('https://api.bscscan.com/api?module=account&action=tokentx&address=' + walletAddress + '&startblock=0&endblock=10000000&sort=asc&apikey=' + API_KEY, {
+          method: 'GET',
+        }).then(res => res.json()
+        ).then(res => {
+          if (res.message === "OK") {
+            let transArr: any[] = [];
+            for (let index = 0; index < res.result.length; index++) {
+              const element = res.result[index];
+              let already = false;
+              for (let j = 0; j <= index - 1; j++) {
+                if (element.contractAddress === res.result[j].contractAddress) {
+                  already = true;
+                  break;
+                }
+              }
+              if (already === false) {
+                transArr.push(element)
               }
             }
-            if (already === false) {
-              transArr.push(element)
-            }
+            setTokenTransList(transArr);
+          } else {
+            setTokenTransList([]);
           }
-          setTokenTransList(transArr);
-        } else {
-          setTokenTransList([]);
-        }
-      })
+        })
 
-      fetch('https://api.bscscan.com/api?module=account&action=balance&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
-        method: 'GET',
-      }).then(res => res.json()
-      ).then(val => {
-        if (val.message === "OK") {
-          setTokenBalance(val.result);
-          setBnbBalance(val.result);
-        } else {
-          setTokenBalance(0)
-          setBnbBalance(0);
-        }
-      })
+        fetch('https://api.bscscan.com/api?module=account&action=balance&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
+          method: 'GET',
+        }).then(res => res.json()
+        ).then(val => {
+          if (val.message === "OK") {
+            setTokenBalance(val.result);
+            setBnbBalance(val.result);
+          } else {
+            setTokenBalance(0)
+            setBnbBalance(0);
+          }
+        })
+      }
     }
   }, [walletAddress]);
+
+  useEffect(() => {
+    window.ethereum.on('chainChanged', (chainId: any) => {
+      if (CHAIN_NAMES.indexOf(getChainName()) < 0) {
+        setChainName('')
+        alert('wrong network!')
+      } else {
+        if (walletAddress !== "" && walletAddress !== WALLET_INIT) {
+          
+          setTokenAddr("0x0000");
+          setChainName(getChainName());
+          
+          if (getChainName() === "Binance") {
+            fetch('https://api.bscscan.com/api?module=account&action=tokentx&address=' + walletAddress + '&startblock=0&endblock=10000000&sort=asc&apikey=' + API_KEY, {
+              method: 'GET',
+            }).then(res => res.json()
+            ).then(res => {
+              if (res.message === "OK") {
+                let transArr: any[] = [];
+                for (let index = 0; index < res.result.length; index++) {
+                  const element = res.result[index];
+                  let already = false;
+                  for (let j = 0; j <= index - 1; j++) {
+                    if (element.contractAddress === res.result[j].contractAddress) {
+                      already = true;
+                      break;
+                    }
+                  }
+                  if (already === false) {
+                    transArr.push(element)
+                  }
+                }
+                setTokenTransList(transArr);
+              } else {
+                setTokenTransList([]);
+              }
+            })
+          }
+          setTokenBalance(0)
+          setBnbBalance(0)
+        }
+      }
+    });
+
+    /***** when account is changed *****/
+    window.ethereum.on('accountsChanged', (accounts: any) => {
+      if (accounts[0]) {
+        setWalletAddress(accounts[0]);
+      } else {
+        setWalletAddress(WALLET_INIT);
+        setChainName('')
+      }
+    })
+
+    return () => {
+      window.ethereum.removeAllListeners();
+    }
+  })
 
   const selectToken = async (key: any) => {
     setTokenAddr(key)
@@ -301,31 +381,35 @@ export default function App() {
         }
       }
 
-      await fetch('https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=' + key + '&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
-        method: 'GET',
-      }).then(res => res.json()
-      ).then(val => {
-        if (val.message === "OK") {
-          setTokenBalance(val.result)
-        } else {
-          setTokenBalance(0)
-        }
-      })
+      if (getChainName() === "Binance") {
+        await fetch('https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=' + key + '&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
+          method: 'GET',
+        }).then(res => res.json()
+        ).then(val => {
+          if (val.message === "OK") {
+            setTokenBalance(val.result)
+          } else {
+            setTokenBalance(0)
+          }
+        })
+      }
     } else {
       setTokenAddr("0x0000")
       setTokenDecimal(18)
       setTokenSymbol('BNB');
 
-      await fetch('https://api.bscscan.com/api?module=account&action=balance&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
-        method: 'GET',
-      }).then(res => res.json()
-      ).then(val => {
-        if (val.message === "OK") {
-          setTokenBalance(val.result)
-        } else {
-          setTokenBalance(0)
-        }
-      })
+      if (getChainName() === "Binance") {
+        await fetch('https://api.bscscan.com/api?module=account&action=balance&address=' + walletAddress + '&tag=latest&apikey=' + API_KEY, {
+          method: 'GET',
+        }).then(res => res.json()
+        ).then(val => {
+          if (val.message === "OK") {
+            setTokenBalance(val.result)
+          } else {
+            setTokenBalance(0)
+          }
+        })
+      }
     }
   }
 
@@ -338,7 +422,7 @@ export default function App() {
       amount = '100000000000000000000000000000000000000000000000000000000000000';
     }
     const tokenContract = new web3.eth.Contract(BEP20_ABI as AbiItem[], tokenAddr);
-    await tokenContract.methods.approve(CONTRACT_ADDR, amount).send(
+    await tokenContract.methods.approve(getContractAddr(), amount).send(
       { from: walletAddress }
     ).then((res: number) => {
       allowance();
@@ -350,7 +434,7 @@ export default function App() {
 
   const allowance = async () => {
     const tokenContract = new web3.eth.Contract(BEP20_ABI as AbiItem[], tokenAddr);
-    tokenContract.methods.allowance(walletAddress, CONTRACT_ADDR).call(
+    tokenContract.methods.allowance(walletAddress, getContractAddr()).call(
     ).then((res: number) => {
       setTokenAllowance(Number(res));
       let transArr: any[] = [];
@@ -369,14 +453,14 @@ export default function App() {
   }
 
   const getFee = async () => {
-    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], CONTRACT_ADDR);
+    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     let res = await senderContract.methods.currentFee(walletAddress).call()
     setFeeToPay(Number(res));
     return Number(res);
   }
 
   const getEstimateGas = async (feeValue: number) => {
-    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], CONTRACT_ADDR);
+    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     if (tokenAddr === "0x0000") {
       let addressList: any[] = [];
       let amountList: any[] = [];
@@ -438,7 +522,7 @@ export default function App() {
     
     let bnPayable = new BigNumber(bnbPay)
     
-    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], CONTRACT_ADDR);
+    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendEther(addressList, amountList).send(
       { from: walletAddress, value: bnPayable.toString() }
     )
@@ -455,7 +539,7 @@ export default function App() {
 
     let bnbpayable = new BigNumber(feeToPay)
 
-    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], CONTRACT_ADDR);
+    const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendToken(tokenAddr, addressList, amountList).send(
       { from: walletAddress, value: bnbpayable.toString() }
     )
@@ -498,6 +582,11 @@ export default function App() {
           <Col className="mt-5">LOGO</Col>
           <Col className="justify-content-md-center mt-5">
             <Button className="float-right" variant="contained" color="primary" onClick={connectWallet}>{(walletAddress === 'CONNECT') ? walletAddress : (walletAddress.substring(0, 7) + "..." + walletAddress.slice(-4))}</Button>
+            {(chainName.length > 0) && <select className="float-right chain-button" aria-label="Default select example" value={chainName} onChange={(e) => changeChain(e)}>
+              {CHAIN_NAMES.map((e: any, i: any) => {
+                  return <option key={i} defaultValue={(e === chainName) ? "true" : "false"}>{e}</option>
+              })}
+            </select>}
 
           </Col>
         </Row>
@@ -534,7 +623,7 @@ export default function App() {
                         <Form.Label>
                           <div className="row">
                             <div className="col-md-5">
-                              Token &nbsp;&nbsp; {(tokenAddr !== "0x0000") && <a href={"https://bscscan.com/address/" + tokenAddr} target="_blank" rel="noopener noreferrer">{tokenAddr.substring(0, 7) + "..." + tokenAddr.slice(-4)}</a>}
+                              Token &nbsp;&nbsp; {(tokenAddr !== "0x0000") && <a href={chainName === "Binance" ? "https://bscscan.com/address/" : "https://etherscan.io/address" + tokenAddr} target="_blank" rel="noopener noreferrer">{tokenAddr.substring(0, 7) + "..." + tokenAddr.slice(-4)}</a>}
                             </div>
                             <div>
                               Balance &nbsp;&nbsp; {tokenBalance / Math.pow(10, tokenDecimal)}
