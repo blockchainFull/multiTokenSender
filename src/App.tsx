@@ -117,6 +117,8 @@ export default function App() {
         allowance();
       }
 
+      if (getChainName() === "")
+        return;
       let feeValue = await getFee();
       getEstimateGas(feeValue);
 
@@ -459,9 +461,15 @@ export default function App() {
 
   const getFee = async () => {
     const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
-    let res = await senderContract.methods.currentFee(walletAddress).call()
-    setFeeToPay(Number(res));
-    return Number(res);
+    try {
+      let res = await senderContract.methods.currentFee(walletAddress).call()
+      setFeeToPay(Number(res));
+      return Number(res);  
+    } catch (error) {
+      setAlertMsg('Error with smart contract')
+      return 0
+    }
+    
   }
 
   const getEstimateGas = async (feeValue: number) => {
