@@ -272,10 +272,11 @@ export default function App() {
       setTokenAddr("0x0000");
       setChainName(getChainName());
       if (getChainName() === "Binance") {
-        fetch('https://api.bscscan.com/api?module=account&action=tokentx&address=' + walletAddress + '&startblock=0&endblock=10000000&sort=asc&apikey=' + API_KEY, {
+        fetch('https://api.bscscan.com/api?module=account&action=tokentx&address=' + walletAddress + '&startblock=0&endblock=30000000&sort=asc&apikey=' + API_KEY, {
           method: 'GET',
         }).then(res => res.json()
         ).then(res => {
+          console.log(res)
           if (res.message === "OK") {
             let transArr: any[] = [];
             for (let index = 0; index < res.result.length; index++) {
