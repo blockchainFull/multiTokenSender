@@ -449,7 +449,7 @@ export default function App() {
     let amount;
     if (approveLimit === 0) {
       let amountBn = new BigNumber(receiptList.reduce((a, v) => a = Number(a) + Number(v.amount), 0) * Math.pow(10, tokenDecimal));
-      amount = amountBn.toString();
+      amount = "0x" + amountBn.toString(16);
     } else {
       amount = '100000000000000000000000000000000000000000000000000000000000000';
     }
@@ -551,7 +551,7 @@ export default function App() {
     for (let i = 0; i < receiptList.length; i++) {
       addressList.push(receiptList[i].address);
       let bnb = new BigNumber(Math.pow(10, 18) * receiptList[i].amount)
-      amountList.push(bnb.toString());
+      amountList.push("0x"+bnb.toString(16));
       bnbPay = bnbPay + receiptList[i].amount * Math.pow(10, 18);
     }
 
@@ -561,7 +561,7 @@ export default function App() {
     
     const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendEther(addressList, amountList).send(
-      { from: walletAddress, value: bnPayable.toString() }
+      { from: walletAddress, value: "0x"+bnPayable.toString(16) }
     )
   }
 
@@ -571,14 +571,14 @@ export default function App() {
     for (let i = 0; i < receiptList.length; i++) {
       addressList.push(receiptList[i].address);
       let token = new BigNumber(Math.pow(10, tokenDecimal) * receiptList[i].amount)
-      amountList.push(token.toString());
+      amountList.push("0x"+token.toString(16));
     }
 
     let bnbpayable = new BigNumber(feeToPay)
 
     const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendToken(tokenAddr, addressList, amountList).send(
-      { from: walletAddress, value: bnbpayable.toString() }
+      { from: walletAddress, value: "0x"+ bnbpayable.toString(16) }
     )
     allowance();
   }
