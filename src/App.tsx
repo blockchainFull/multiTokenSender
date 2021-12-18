@@ -14,6 +14,7 @@ import { AbiItem } from 'web3-utils'
 import { BigNumber } from 'bignumber.js';
 import Config, { API_KEY, BEP20_ABI, MULTISENDER_ABI } from './config.js'
 import './App.css'
+import { domainToUnicode } from 'url';
 
 declare let window: any;
 
@@ -204,40 +205,60 @@ export default function App() {
     setdata([])
     setdata(examplearray)
   }
+  // const handleFile = (file: any) => {
+  //   console.log(file)
+  //   setdata([]);
+  //   /* Boilerplate to set up FileReader */
+  //   const reader = new FileReader();
+  //   const rABS = !!reader.readAsText;
+  //   reader.onload = (e: any) => {
+  //     /* Parse data */
+  //     const bstr = e.target.result;
+  //     // const wb = XLSX.read(bstr, { type:  "array" });
+  //     const wb = XLSX.read(bstr, { type: rABS ? "binary" : "array" });
+  //     // console.log(wb);
+  //     /* Get first worksheet */
+  //     const wsname = wb.SheetNames[0];
+  //     const ws = wb.Sheets[wsname];
+  //     /* Convert array of arrays */
+  //     let data: any = XLSX.utils.sheet_to_json(ws, {
+  //       header: 1
+  //     });
+  //     /* Update state */
+  //     let filterArr: any[] = [];
+  //     for (let i = 0; i < data.length; i++) {
+  //       if (web3.utils.isAddress(data[i][0]) && !isNaN(data[i][1])) {
+  //         filterArr.push(data[i]);
+  //       }
+  //     }
 
-  const handleFile = (file: any) => {
-    console.log(file)
-    setdata([])
-    /* Boilerplate to set up FileReader */
+  //     setEditText(0)
+  //     setdata([])
+  //     setdata(filterArr)
+
+  //   };
+  //   if (rABS) reader.readAsBinaryString(file);
+  //   else reader.readAsArrayBuffer(file);
+  // }
+  
+  const handleFile = (file:any) => {
     const reader = new FileReader();
-    const rABS = !!reader.readAsBinaryString;
-    reader.onload = (e: any) => {
-      /* Parse data */
-      const bstr = e.target.result;
-      const wb = XLSX.read(bstr, { type: rABS ? "binary" : "array" });
-      /* Get first worksheet */
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      /* Convert array of arrays */
-      let data: any = XLSX.utils.sheet_to_json(ws, {
-        header: 1
-      });
-      /* Update state */
-      let filterArr: any[] = [];
-      for (let i = 0; i < data.length; i++) {
-        if (web3.utils.isAddress(data[i][0]) && !isNaN(data[i][1])) {
-          filterArr.push(data[i]);
-        }
-      }
+    setdata([]);
+    reader.onload = (e) => {
+      const text = String(e.target.result);
+      const rows = text.split("\r\n");
+      const dt = rows.map(row => {
+        const values = row.split(',');
+        return values;
+      })
+      setEditText(0);
+      setdata([]);
+      setdata(dt);
+    }
 
-      setEditText(0)
-      setdata([])
-      setdata(filterArr)
-
-    };
-    if (rABS) reader.readAsBinaryString(file);
-    else reader.readAsArrayBuffer(file);
+    reader.readAsText(file);
   }
+  
 
   const exportFile = () => {
     /* convert state to workbook */
@@ -252,6 +273,9 @@ export default function App() {
     document.getElementById('file').click()
   }
 
+  useEffect(() => {
+
+  }, [data])
   useEffect(() => {
     if (walletAddress === WALLET_INIT) {
       if (typeof window.ethereum === 'undefined') {
@@ -941,7 +965,7 @@ export const DataInput = (props: any) => {
           type="file"
           className="form-control"
           id="file"
-          accept={SheetJSFT}
+          accept=".csv,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           onChange={handleChange}
         />
       </div>
