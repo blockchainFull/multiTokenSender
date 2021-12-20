@@ -570,7 +570,7 @@ export default function App() {
     let amountList: any[] = [];
     for (let i = 0; i < receiptList.length; i++) {
       addressList.push(receiptList[i].address);
-      let token = new BigNumber(Math.pow(10, tokenDecimal) * receiptList[i].amount)
+      let token = Math.round(Math.pow(10, tokenDecimal) * receiptList[i].amount)
       amountList.push("0x"+token.toString(16));
     }
 
