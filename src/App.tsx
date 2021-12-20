@@ -131,7 +131,7 @@ export default function App() {
       }
 
       //Do modify after step1 is completed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! transArr -> receiptList!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      const tokenToSend = transArr.reduce((a, v) => a = a + v.amount, 0);
+      const tokenToSend = (transArr.reduce((a, v) => a = a + v.amount, 0)).toFixed(4);
       if (tokenAddr === "0x0000") {
         if (bnbBalance < tokenToSend * Math.pow(10, 18)) {
           setAlertMsg('Insufficient BNB balance');
@@ -448,7 +448,7 @@ export default function App() {
   const approve = async () => {
     let amount;
     if (approveLimit === 0) {
-      let amountBn = new BigNumber(receiptList.reduce((a, v) => a = a + v.amount, 0) * Math.pow(10, tokenDecimal));
+      let amountBn = new BigNumber((receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal));
       amount = "0x" + amountBn.toString(16);
     } else {
       amount = '100000000000000000000000000000000000000000000000000000000000000';
@@ -476,7 +476,7 @@ export default function App() {
         }
       }
 
-      let tokenToSend = transArr.reduce((a, v) => a = a + v.amount, 0);
+      let tokenToSend = (transArr.reduce((a, v) => a = a + v.amount, 0)).toFixed(4);
 
       if (Number(res) < tokenToSend * Math.pow(10, tokenDecimal)) {
         setAlertMsg("Transfer amount exceeds allowance")
@@ -815,7 +815,7 @@ export default function App() {
                       {alertMsg}
                     </div>
                   </div>}
-                  {(tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)) * Math.pow(10, tokenDecimal)) && <div className="row">
+                  {(tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal)) && <div className="row">
                     <div className="col-md-6 text-left">
                       <Form.Check inline label="Exact amount to be sent" name="group1" type="radio" id="inline-checkbox-1" style={{ color: "grey" }} onClick={() => setApproveLimit(0)} defaultChecked={(approveLimit === 0) ? true : false}/>
                       <Form.Check inline label="Unlimited amount" name="group1" type="radio" id="inline-checkbox-2" style={{ color: "grey" }} onClick={() => setApproveLimit(1)} defaultChecked={(approveLimit !== 0) ? true : false}/>
@@ -826,7 +826,7 @@ export default function App() {
                       <button onClick={handlePrevious} className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary" type="button">Previous Step</button>
                     </div>
                     <div className="col-md-6 text-right">
-                      <button onClick={(tokenAddr === "0x0000" || tokenAllowance >= (receiptList.reduce((a, v) => a = a + v.amount, 0)) * Math.pow(10, tokenDecimal)) ? handleNext : approve} className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary" type="button" disabled={(alertMsg === "" || (tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)) * Math.pow(10, tokenDecimal))) ? false : true} style={{ cursor: (alertMsg === "" || (tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)) * Math.pow(10, tokenDecimal))) ? "pointer" : "not-allowed" }}>{(tokenAddr === "0x0000" || tokenAllowance >= (receiptList.reduce((a, v) => a = a + v.amount, 0)) * Math.pow(10, tokenDecimal)) ? "Next" : "Approve"}</button>
+                      <button onClick={(tokenAddr === "0x0000" || tokenAllowance >= (receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal)) ? handleNext : approve} className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary" type="button" disabled={(alertMsg === "" || (tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal))) ? false : true} style={{ cursor: (alertMsg === "" || (tokenAddr !== "0x0000" && tokenAllowance < (receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal))) ? "pointer" : "not-allowed" }}>{(tokenAddr === "0x0000" || tokenAllowance >= (receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4) * Math.pow(10, tokenDecimal)) ? "Next" : "Approve"}</button>
                     </div>
                   </div>
 
@@ -857,7 +857,7 @@ export default function App() {
                             <h6>Total number of transactions needed</h6>
                           </div>
                           <div className="col-md-6">
-                            <h3>{(receiptList.reduce((a, v) => a = a + v.amount, 0))} {tokenSymbol}</h3>
+                            <h3>{(receiptList.reduce((a, v) => a = a + v.amount, 0)).toFixed(4)} {tokenSymbol}</h3>
                             <h6>Total number of tokens to be sent</h6>
                           </div>
                         </div>
