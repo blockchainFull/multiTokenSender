@@ -472,7 +472,7 @@ export default function App() {
       let transArr: any[] = [];
       for (let i = 0; i < data.length; i++) {
         if (web3.utils.isAddress(data[i][0]) && !isNaN(data[i][1])) {
-          transArr.push({ address: data[i][0], amount: data[i][1] });
+          transArr.push({ address: data[i][0], amount: Number(data[i][1]) });
         }
       }
 
@@ -512,10 +512,10 @@ export default function App() {
       
       bnbPay = bnbPay + feeValue;
       
-      let bnPayable = new BigNumber(bnbPay)
+      let bnbPayable = bnbPay
 
       let gasPrice = await web3.eth.getGasPrice();
-      senderContract.methods.multisendEther(addressList, amountList).estimateGas({ from: walletAddress, value: bnPayable.toString() })
+      senderContract.methods.multisendEther(addressList, amountList).estimateGas({ from: walletAddress, value: "0x" + Math.round(bnbPayable).toString(16) })
       .then(function (gasAmount: any) {
         setEstimateGas(Number(gasPrice) * Number(gasAmount));
       })
@@ -531,11 +531,11 @@ export default function App() {
         amountList.push(token.toString());
       }
 
-      let bnbpayable = new BigNumber(feeValue)
+      let bnbpayable = feeValue
 
       let gasPrice = await web3.eth.getGasPrice();
 
-      senderContract.methods.multisendToken(tokenAddr, addressList, amountList).estimateGas({ from: walletAddress, value: bnbpayable.toString()})
+      senderContract.methods.multisendToken(tokenAddr, addressList, amountList).estimateGas({ from: walletAddress, value: "0x" + Math.round(bnbpayable).toString(16)})
       .then(function (gasAmount: any) {
         setEstimateGas(Number(gasPrice) * Number(gasAmount));
       })
@@ -557,11 +557,11 @@ export default function App() {
 
     bnbPay = bnbPay + feeToPay;
     
-    let bnPayable = new BigNumber(bnbPay)
+    let bnbPayable = bnbPay
     
     const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendEther(addressList, amountList).send(
-      { from: walletAddress, value: "0x"+bnPayable.toString(16) }
+      { from: walletAddress, value:  "0x" + Math.round(bnbPayable).toString(16)}
     )
   }
 
@@ -574,11 +574,11 @@ export default function App() {
       amountList.push("0x"+token.toString(16));
     }
 
-    let bnbpayable = new BigNumber(feeToPay)
+    let bnbpayable = feeToPay
 
     const senderContract = new web3.eth.Contract(MULTISENDER_ABI as AbiItem[], getContractAddr());
     await senderContract.methods.multisendToken(tokenAddr, addressList, amountList).send(
-      { from: walletAddress, value: "0x"+ bnbpayable.toString(16) }
+      { from: walletAddress, value: "0x"+ Math.round(bnbpayable).toString(16) }
     )
     allowance();
   }
