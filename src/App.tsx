@@ -527,8 +527,8 @@ export default function App() {
       let amountList: any[] = [];
       for (let i = 0; i < data.length; i++) {
         addressList.push(data[i][0]);
-        let token = new BigNumber(Math.pow(10, tokenDecimal) * data[i][1])
-        amountList.push(token.toString());
+        let token = Math.pow(10, tokenDecimal) * data[i][1]
+        amountList.push(Math.round(token).toString());
       }
 
       let bnbpayable = feeValue
@@ -570,8 +570,9 @@ export default function App() {
     let amountList: any[] = [];
     for (let i = 0; i < receiptList.length; i++) {
       addressList.push(receiptList[i].address);
-      let token = Math.round(Math.pow(10, tokenDecimal) * receiptList[i].amount)
-      amountList.push("0x"+token.toString(16));
+      let token = Math.pow(10, tokenDecimal) * receiptList[i].amount
+      console.log(token)
+      amountList.push("0x"+ Math.round(token).toString(16));
     }
 
     let bnbpayable = feeToPay
